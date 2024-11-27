@@ -17,25 +17,8 @@ overlay.addEventListener("click", () => {
 
 let currentPage = 1;
 let pageSize = 20;
-let totalPages = 1;
-let totalLoaded = 0;
-let loading = false;
 
 async function loadProducts() {
-  if (loading) return;
-
-  loading = true;
-
-  if (totalLoaded >= pageSize) {
-    loading = false;
-    return;
-  }
-
-  if (currentPage > totalPages) {
-    loading = false;
-    return;
-  }
-
   try {
     const response = await fetch(
       `https://brandstestowy.smallhost.pl/api/random?pageNumber=${currentPage}&pageSize=${pageSize}`
@@ -49,47 +32,69 @@ async function loadProducts() {
     console.log(data);
 
     const productsList = document.getElementById("productsList");
-    if (currentPage === 1) {
-      productsList.innerHTML = "";
-    }
-
     data.data.forEach((product) => {
       const productCard = document.createElement("div");
       productCard.className = "card";
       productCard.innerHTML = `ID: ${product.id}<br>${product.text}`;
       productsList.appendChild(productCard);
-      totalLoaded++;
     });
 
-    totalPages = data.totalPages;
-
-    if (currentPage < totalPages && totalLoaded < pageSize) {
+    if (currentPage < data.totalPages) {
       currentPage++;
     }
-
-    loading = false;
   } catch (error) {
     console.error("Ошибка:", error);
-    loading = false;
   }
 }
 
 document.getElementById("productsPerPage").addEventListener("change", (e) => {
   pageSize = parseInt(e.target.value);
   currentPage = 1;
-  totalPages = 1;
-  totalLoaded = 0;
   document.getElementById("productsList").innerHTML = "";
   loadProducts();
 });
 
 window.addEventListener("scroll", () => {
-  if (
-    window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
-    totalLoaded < pageSize
-  ) {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
     loadProducts();
   }
 });
 
 loadProducts();
+window.addEventListener("scroll", () => {
+  const scrollY = window.scrollY;
+
+  const dogContent = document.querySelector(".dog-content");
+  if (dogContent) {
+    dogContent.style.transform = `translateY(${scrollY * 0.2}px)`;
+  }
+
+  // const vectcorsDog = document.querySelector(".vectcors-dog");
+  // if (vectcorsDog) {
+  //   vectcorsDog.style.transform = `translateX(-50%) translateY(${
+  //     scrollY * 0.2
+  //   }px)`; // Более медленный параллакс (коэффициент 0.1)
+  // }
+});
+
+document
+  .querySelector(".block-navbar a")
+  .addEventListener("click", function (e) {
+    e.preventDefault();
+    const target = document.querySelector(".sklad-content");
+    target.scrollIntoView({ behavior: "smooth" });
+  });
+document
+  .querySelector(".block-navbar a")
+  .addEventListener("click", function (e) {
+    e.preventDefault();
+    const target = document.querySelector(".produkty");
+    target.scrollIntoView({ behavior: "smooth" });
+  });
+document
+  .querySelector(".block-navbar a")
+  .addEventListener("click", function (e) {
+    e.preventDefault();
+    const target = document.querySelector(".content-preparat");
+    target.scrollIntoView({ behavior: "smooth" });
+  });
